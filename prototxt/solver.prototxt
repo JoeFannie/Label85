@@ -1,0 +1,16 @@
+net: "/home/caojiajiong/attribute_learning/resnet_50_reduced.prototxt"
+test_iter: 2646
+test_interval: 2500
+test_initialization: false
+base_lr: 0.015
+momentum: 0.9
+weight_decay: 0.0002
+lr_policy: "step"
+gamma: 0.2
+stepsize: 70000
+display: 100
+max_iter: 500000
+snapshot: 10000
+snapshot_format: HDF5
+snapshot_prefix: "/home/caojiajiong/attribute_learning/snapshot/resnet_50_reduced"
+solver_mode: GPU
