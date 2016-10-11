@@ -1,0 +1,8 @@
+Attribute Classification
+1. My ClassificationCNN_v4 network outperforms MCNN a little bit. And I will check if the training data helps or the network architecture.    
+2. Identification signal doesn't help to increase the performance when combining with attribute classification in a whole network. Pure attribute classification network out perfroms attr&&id network by 2% in previous experiments.    
+3. My Res_Refine network increases the performance by around 0.3%-0.5% on MCNN, which is better than the AUX architecture.    
+4. After training on attr_id network, I finetune it with training set of CelebA and it gives a 1% performance increase.
+5. Adding more patches significantly gives better identification performance while the loss of attribute classification doesn't lower.     
+Research    
+1. Design a good series of experiments to verify your ideas. Do not start before you understanding the problem and know what you want to verify from the experiments. 
