@@ -1,0 +1,2767 @@
+name: "Classification"
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mirror: true
+	crop_size: 112
+    scale: 0.00390625
+	mean_file: "/home/zhangyuan/caojiajiong/attribute_learning/attr_id/data/train_attr_id.binaryproto"
+  }
+  image_data_param {
+    source: "/home/zhangyuan/caojiajiong/attribute_learning/attr_id/data/train_shuffle_new.txt"
+	root_folder: "/home/zhangyuan/caojiajiong/attribute_learning/attr_id/data/img_align_celeba/"
+	new_height: 128
+	new_width: 128
+	batch_size: 100
+  }
+}
+layer {
+  name: "attr_data"
+  type: "Data"
+  top: "attr_data"
+  top: "fakelabel"
+  include {
+    phase: TRAIN
+  }
+  data_param {
+    source: "/home/zhangyuan/caojiajiong/attribute_learning/attr_id/data/train_label_new"
+	batch_size: 100
+    backend: LMDB
+  }
+}
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mirror: false
+	  crop_size: 112
+    scale: 0.00390625
+	  mean_file: "/home/zhangyuan/caojiajiong/attribute_learning/attr_id/data/train_attr_id.binaryproto"
+  }
+  data_param {
+    source: "/home/zhangyuan/caojiajiong/attribute_learning/attr_id/data/val_lmdb"
+	batch_size: 64
+    backend: LMDB
+  }
+}
+layer {
+  name: "attr_data"
+  type: "Data"
+  top: "attr_data"
+  top: "fakelabel"
+  include {
+    phase: TEST
+  }
+  data_param {
+    source: "/home/zhangyuan/caojiajiong/attribute_learning/attr_id/data/val_label"
+	batch_size: 64
+    backend: LMDB
+  }
+}
+
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  param {
+    name: "conv1_w"
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    name: "conv1_b"
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+	pad: 1
+	kernel_size: 3
+	stride: 1
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+}
+}
+layer {
+  name: "slice"
+  type: "Slice"
+  bottom: "attr_data"
+  top: "label_5_o_Clock_Shadow"
+  top: "label_Arched_Eyebrows"
+  top: "label_Attractive"
+  top: "label_Bags_Under_Eyes"
+  top: "label_Bald"
+  top: "label_Bangs"
+  top: "label_Big_Lips"
+  top: "label_Big_Nose"
+  top: "label_Black_Hair"
+  top: "label_Blond_Hair"
+  top: "label_Blurry"
+  top: "label_Brown_Hair"
+  top: "label_Bushy_Eyebrows"
+  top: "label_Chubby"
+  top: "label_Double_Chin"
+  top: "label_Eyeglasses"
+  top: "label_Goatee"
+  top: "label_Gray_Hair"
+  top: "label_Heavy_Makeup"
+  top: "label_High_Cheekbones"
+  top: "label_Male"
+  top: "label_Mouth_Slightly_Open"
+  top: "label_Mustache"
+  top: "label_Narrow_Eyes"
+  top: "label_No_Beard"
+  top: "label_Oval_Face"
+  top: "label_Pale_Skin"
+  top: "label_Pointy_Nose"
+  top: "label_Receding_Hairline"
+  top: "label_Rosy_Cheeks"
+  top: "label_Sideburns"
+  top: "label_Smiling"
+  top: "label_Straight_Hair"
+  top: "label_Wavy_Hair"
+  top: "label_Wearing_Earrings"
+  top: "label_Wearing_Hat"
+  top: "label_Wearing_Lipstick"
+  top: "label_Wearing_Necklace"
+  top: "label_Wearing_Necktie"
+  top: "label_Young"
+  slice_param {
+    slice_dim: 1
+    slice_point: 2
+    slice_point: 4
+    slice_point: 6
+    slice_point: 8
+    slice_point: 10
+    slice_point: 12
+    slice_point: 14
+    slice_point: 16
+    slice_point: 18
+    slice_point: 20
+    slice_point: 22
+    slice_point: 24
+    slice_point: 26
+    slice_point: 28
+    slice_point: 30
+    slice_point: 32
+    slice_point: 34
+    slice_point: 36
+    slice_point: 38
+    slice_point: 40
+    slice_point: 42
+    slice_point: 44
+    slice_point: 46
+    slice_point: 48
+    slice_point: 50
+    slice_point: 52
+    slice_point: 54
+    slice_point: 56
+    slice_point: 58
+    slice_point: 60
+    slice_point: 62
+    slice_point: 64
+    slice_point: 66
+    slice_point: 68
+    slice_point: 70
+    slice_point: 72
+    slice_point: 74
+    slice_point: 76
+    slice_point: 78
+  } 
+}
+layer {
+  name: "conv1_bn"
+  type: "BatchNorm"
+  bottom: "conv1"
+  top: "conv1"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv1_scale"
+  type: "Scale"
+  bottom: "conv1"
+  top: "conv1"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu1"
+  type: "PReLU"
+  bottom: "conv1"
+  top: "conv1"
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+	kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2a"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2a"
+  param {
+    name: "conv2a_w"
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    name: "conv2a_b"
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+	kernel_size: 1
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+}
+}
+layer {
+  name: "conv2a_bn"
+  type: "BatchNorm"
+  bottom: "conv2a"
+  top: "conv2a"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv2a_scale"
+  type: "Scale"
+  bottom: "conv2a"
+  top: "conv2a"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu2a"
+  type: "PReLU"
+  bottom: "conv2a"
+  top: "conv2a"
+}
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "conv2a"
+  top: "conv2"
+  param {
+    name: "conv2_w"
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    name: "conv2_b"
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 192
+	pad: 1
+	kernel_size: 3
+	stride: 1
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+    }
+}
+layer {
+  name: "conv2_bn"
+  type: "BatchNorm"
+  bottom: "conv2"
+  top: "conv2"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv2_scale"
+  type: "Scale"
+  bottom: "conv2"
+  top: "conv2"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu2"
+  type: "PReLU"
+  bottom: "conv2"
+  top: "conv2"
+}
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+	kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv3a"
+  type: "Convolution"
+  bottom: "pool2"
+  top: "conv3a"
+  param {
+    name: "conv3a_w"
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    name: "conv3a_b"
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 192
+	kernel_size: 1
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+    }
+}
+layer {
+  name: "conv3a_bn"
+  type: "BatchNorm"
+  bottom: "conv3a"
+  top: "conv3a"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv3a_scale"
+  type: "Scale"
+  bottom: "conv3a"
+  top: "conv3a"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu3a"
+  type: "PReLU"
+  bottom: "conv3a"
+  top: "conv3a"
+}
+layer {
+  name: "conv3"
+  type: "Convolution"
+  bottom: "conv3a"
+  top: "conv3"
+  param {
+    name: "conv3_w"
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    name: "conv3_b"
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 384
+	pad: 1
+	kernel_size: 3
+	stride: 1
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+    }
+}
+layer {
+  name: "conv3_bn"
+  type: "BatchNorm"
+  bottom: "conv3"
+  top: "conv3"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv3_scale"
+  type: "Scale"
+  bottom: "conv3"
+  top: "conv3"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu3"
+  type: "PReLU"
+  bottom: "conv3"
+  top: "conv3"
+}
+layer {
+  name: "pool3"
+  type: "Pooling"
+  bottom: "conv3"
+  top: "pool3"
+  pooling_param {
+    pool: MAX
+	  kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv3_gender"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "conv3_gender"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 300
+	pad: 1
+	kernel_size: 3
+	stride: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "conv3_gender_bn"
+  type: "BatchNorm"
+  bottom: "conv3_gender"
+  top: "conv3_gender"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv3_gender_scale"
+  type: "Scale"
+  bottom: "conv3_gender"
+  top: "conv3_gender"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu3_gender"
+  type: "PReLU"
+  bottom: "conv3_gender"
+  top: "conv3_gender"
+}
+
+layer {
+  name: "pool3_gender"
+  type: "Pooling"
+  bottom: "conv3_gender"
+  top: "pool3_gender"
+  pooling_param {
+    pool: MAX
+	kernel_size: 5
+	stride: 2
+	pad: 2
+  }
+}
+
+
+layer {
+  name: "fc1_gender"
+  type: "InnerProduct"
+  bottom: "pool3_gender"
+  top: "fc1_gender"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu1_gender"
+  type: "ReLU"
+  bottom: "fc1_gender"
+  top: "fc1_gender"
+}
+
+layer {
+  name: "drop1_gender"
+  type: "Dropout"
+  bottom: "fc1_gender"
+  top: "fc1_gender"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc2_gender"
+  type: "InnerProduct"
+  bottom: "fc1_gender"
+  top: "fc2_gender"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu2_gender"
+  type: "ReLU"
+  bottom: "fc2_gender"
+  top: "fc2_gender"
+}
+
+layer {
+  name: "drop2_gender"
+  type: "Dropout"
+  bottom: "fc2_gender"
+  top: "fc2_gender"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "conv3_nose"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "conv3_nose"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 300
+	pad: 1
+	kernel_size: 3
+	stride: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "conv3_nose_bn"
+  type: "BatchNorm"
+  bottom: "conv3_nose"
+  top: "conv3_nose"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv3_nose_scale"
+  type: "Scale"
+  bottom: "conv3_nose"
+  top: "conv3_nose"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu3_nose"
+  type: "PReLU"
+  bottom: "conv3_nose"
+  top: "conv3_nose"
+}
+
+layer {
+  name: "pool3_nose"
+  type: "Pooling"
+  bottom: "conv3_nose"
+  top: "pool3_nose"
+  pooling_param {
+    pool: MAX
+	kernel_size: 5
+	stride: 2
+	pad: 2
+  }
+}
+
+
+layer {
+  name: "fc1_nose"
+  type: "InnerProduct"
+  bottom: "pool3_nose"
+  top: "fc1_nose"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu1_nose"
+  type: "ReLU"
+  bottom: "fc1_nose"
+  top: "fc1_nose"
+}
+
+layer {
+  name: "drop1_nose"
+  type: "Dropout"
+  bottom: "fc1_nose"
+  top: "fc1_nose"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc2_nose"
+  type: "InnerProduct"
+  bottom: "fc1_nose"
+  top: "fc2_nose"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu2_nose"
+  type: "ReLU"
+  bottom: "fc2_nose"
+  top: "fc2_nose"
+}
+
+layer {
+  name: "drop2_nose"
+  type: "Dropout"
+  bottom: "fc2_nose"
+  top: "fc2_nose"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "conv3_mouth"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "conv3_mouth"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 300
+	pad: 1
+	kernel_size: 3
+	stride: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "conv3_mouth_bn"
+  type: "BatchNorm"
+  bottom: "conv3_mouth"
+  top: "conv3_mouth"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv3_mouth_scale"
+  type: "Scale"
+  bottom: "conv3_mouth"
+  top: "conv3_mouth"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu3_mouth"
+  type: "PReLU"
+  bottom: "conv3_mouth"
+  top: "conv3_mouth"
+}
+
+layer {
+  name: "pool3_mouth"
+  type: "Pooling"
+  bottom: "conv3_mouth"
+  top: "pool3_mouth"
+  pooling_param {
+    pool: MAX
+	kernel_size: 5
+	stride: 2
+	pad: 2
+  }
+}
+
+
+layer {
+  name: "fc1_mouth"
+  type: "InnerProduct"
+  bottom: "pool3_mouth"
+  top: "fc1_mouth"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu1_mouth"
+  type: "ReLU"
+  bottom: "fc1_mouth"
+  top: "fc1_mouth"
+}
+
+layer {
+  name: "drop1_mouth"
+  type: "Dropout"
+  bottom: "fc1_mouth"
+  top: "fc1_mouth"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc2_mouth"
+  type: "InnerProduct"
+  bottom: "fc1_mouth"
+  top: "fc2_mouth"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu2_mouth"
+  type: "ReLU"
+  bottom: "fc2_mouth"
+  top: "fc2_mouth"
+}
+
+layer {
+  name: "drop2_mouth"
+  type: "Dropout"
+  bottom: "fc2_mouth"
+  top: "fc2_mouth"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "conv3_eyes"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "conv3_eyes"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 300
+	pad: 1
+	kernel_size: 3
+	stride: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "conv3_eyes_bn"
+  type: "BatchNorm"
+  bottom: "conv3_eyes"
+  top: "conv3_eyes"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv3_eyes_scale"
+  type: "Scale"
+  bottom: "conv3_eyes"
+  top: "conv3_eyes"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu3_eyes"
+  type: "PReLU"
+  bottom: "conv3_eyes"
+  top: "conv3_eyes"
+}
+
+layer {
+  name: "pool3_eyes"
+  type: "Pooling"
+  bottom: "conv3_eyes"
+  top: "pool3_eyes"
+  pooling_param {
+    pool: MAX
+	kernel_size: 5
+	stride: 2
+	pad: 2
+  }
+}
+
+layer {
+  name: "fc1_eyes"
+  type: "InnerProduct"
+  bottom: "pool3_eyes"
+  top: "fc1_eyes"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu1_eyes"
+  type: "ReLU"
+  bottom: "fc1_eyes"
+  top: "fc1_eyes"
+}
+
+layer {
+  name: "drop1_eyes"
+  type: "Dropout"
+  bottom: "fc1_eyes"
+  top: "fc1_eyes"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc2_eyes"
+  type: "InnerProduct"
+  bottom: "fc1_eyes"
+  top: "fc2_eyes"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu2_eyes"
+  type: "ReLU"
+  bottom: "fc2_eyes"
+  top: "fc2_eyes"
+}
+
+layer {
+  name: "drop2_eyes"
+  type: "Dropout"
+  bottom: "fc2_eyes"
+  top: "fc2_eyes"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "conv3_face"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "conv3_face"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 300
+	pad: 1
+	kernel_size: 3
+	stride: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "conv3_face_bn"
+  type: "BatchNorm"
+  bottom: "conv3_face"
+  top: "conv3_face"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv3_face_scale"
+  type: "Scale"
+  bottom: "conv3_face"
+  top: "conv3_face"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu3_face"
+  type: "PReLU"
+  bottom: "conv3_face"
+  top: "conv3_face"
+}
+
+layer {
+  name: "pool3_face"
+  type: "Pooling"
+  bottom: "conv3_face"
+  top: "pool3_face"
+  pooling_param {
+    pool: MAX
+	kernel_size: 5
+	stride: 2
+	pad: 2
+  }
+}
+
+layer {
+  name: "fc1_face"
+  type: "InnerProduct"
+  bottom: "pool3_face"
+  top: "fc1_face"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu1_face"
+  type: "ReLU"
+  bottom: "fc1_face"
+  top: "fc1_face"
+}
+
+layer {
+  name: "drop1_face"
+  type: "Dropout"
+  bottom: "fc1_face"
+  top: "fc1_face"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc2_face"
+  type: "InnerProduct"
+  bottom: "fc1_face"
+  top: "fc2_face"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu2_face"
+  type: "ReLU"
+  bottom: "fc2_face"
+  top: "fc2_face"
+}
+
+layer {
+  name: "drop2_face"
+  type: "Dropout"
+  bottom: "fc2_face"
+  top: "fc2_face"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "conv3_rest"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "conv3_rest"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  convolution_param {
+    num_output: 300
+	pad: 1
+	kernel_size: 3
+	stride: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "conv3_rest_bn"
+  type: "BatchNorm"
+  bottom: "conv3_rest"
+  top: "conv3_rest"
+  batch_norm_param {
+    use_global_stats: false
+  }
+}
+layer {
+  name: "conv3_rest_scale"
+  type: "Scale"
+  bottom: "conv3_rest"
+  top: "conv3_rest"
+  scale_param {
+    bias_term: true
+  }
+}
+layer {
+  name: "prelu3_rest"
+  type: "PReLU"
+  bottom: "conv3_rest"
+  top: "conv3_rest"
+}
+
+layer {
+  name: "pool3_rest"
+  type: "Pooling"
+  bottom: "conv3_rest"
+  top: "pool3_rest"
+  pooling_param {
+    pool: MAX
+	kernel_size: 5
+	stride: 2
+	pad: 2
+  }
+}
+
+
+layer {
+  name: "fc1_aroundhead"
+  type: "InnerProduct"
+  bottom: "pool3_rest"
+  top: "fc1_aroundhead"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu1_aroundhead"
+  type: "ReLU"
+  bottom: "fc1_aroundhead"
+  top: "fc1_aroundhead"
+}
+
+layer {
+  name: "drop1_aroundhead"
+  type: "Dropout"
+  bottom: "fc1_aroundhead"
+  top: "fc1_aroundhead"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc2_aroundhead"
+  type: "InnerProduct"
+  bottom: "fc1_aroundhead"
+  top: "fc2_aroundhead"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu2_aroundhead"
+  type: "ReLU"
+  bottom: "fc2_aroundhead"
+  top: "fc2_aroundhead"
+}
+
+layer {
+  name: "drop2_aroundhead"
+  type: "Dropout"
+  bottom: "fc2_aroundhead"
+  top: "fc2_aroundhead"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc1_facialhair"
+  type: "InnerProduct"
+  bottom: "pool3_rest"
+  top: "fc1_facialhair"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu1_facialhair"
+  type: "ReLU"
+  bottom: "fc1_facialhair"
+  top: "fc1_facialhair"
+}
+
+layer {
+  name: "drop1_facialhair"
+  type: "Dropout"
+  bottom: "fc1_facialhair"
+  top: "fc1_facialhair"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc2_facialhair"
+  type: "InnerProduct"
+  bottom: "fc1_facialhair"
+  top: "fc2_facialhair"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu2_facialhair"
+  type: "ReLU"
+  bottom: "fc2_facialhair"
+  top: "fc2_facialhair"
+}
+
+layer {
+  name: "drop2_facialhair"
+  type: "Dropout"
+  bottom: "fc2_facialhair"
+  top: "fc2_facialhair"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc1_cheeks"
+  type: "InnerProduct"
+  bottom: "pool3_rest"
+  top: "fc1_cheeks"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu1_cheeks"
+  type: "ReLU"
+  bottom: "fc1_cheeks"
+  top: "fc1_cheeks"
+}
+
+layer {
+  name: "drop1_cheeks"
+  type: "Dropout"
+  bottom: "fc1_cheeks"
+  top: "fc1_cheeks"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc2_cheeks"
+  type: "InnerProduct"
+  bottom: "fc1_cheeks"
+  top: "fc2_cheeks"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu2_cheeks"
+  type: "ReLU"
+  bottom: "fc2_cheeks"
+  top: "fc2_cheeks"
+}
+
+layer {
+  name: "drop2_cheeks"
+  type: "Dropout"
+  bottom: "fc2_cheeks"
+  top: "fc2_cheeks"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc1_fat"
+  type: "InnerProduct"
+  bottom: "pool3_rest"
+  top: "fc1_fat"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu1_fat"
+  type: "ReLU"
+  bottom: "fc1_fat"
+  top: "fc1_fat"
+}
+
+layer {
+  name: "drop1_fat"
+  type: "Dropout"
+  bottom: "fc1_fat"
+  top: "fc1_fat"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  name: "fc2_fat"
+  type: "InnerProduct"
+  bottom: "fc1_fat"
+  top: "fc2_fat"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.2
+    }
+  }
+}
+
+layer {
+  name: "relu2_fat"
+  type: "ReLU"
+  bottom: "fc2_fat"
+  top: "fc2_fat"
+}
+
+layer {
+  name: "drop2_fat"
+  type: "Dropout"
+  bottom: "fc2_fat"
+  top: "fc2_fat"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+##gender group##
+layer {
+  name: "fc3_Male"
+  type: "InnerProduct"
+  bottom: "fc2_gender"
+  top: "fc3_Male"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Male"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Male"
+  bottom: "label_Male"
+  top: "loss_Male"
+}
+
+##nose group##
+layer {
+  name: "fc3_Big_Nose"
+  type: "InnerProduct"
+  bottom: "fc2_nose"
+  top: "fc3_Big_Nose"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Big_Nose"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Big_Nose"
+  bottom: "label_Big_Nose"
+  top: "loss_Big_Nose"
+}
+
+layer {
+  name: "fc3_Pointy_Nose"
+  type: "InnerProduct"
+  bottom: "fc2_nose"
+  top: "fc3_Pointy_Nose"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Pointy_Nose"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Pointy_Nose"
+  bottom: "label_Pointy_Nose"
+  top: "loss_Pointy_Nose"
+}
+
+##mouth group##
+layer {
+  name: "fc3_Big_Lips"
+  type: "InnerProduct"
+  bottom: "fc2_mouth"
+  top: "fc3_Big_Lips"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Big_Lips"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Big_Lips"
+  bottom: "label_Big_Lips"
+  top: "loss_Big_Lips"
+}
+
+layer {
+  name: "fc3_Smiling"
+  type: "InnerProduct"
+  bottom: "fc2_mouth"
+  top: "fc3_Smiling"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Smiling"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Smiling"
+  bottom: "label_Smiling"
+  top: "loss_Smiling"
+}
+
+
+layer {
+  name: "fc3_Wearing_Lipstick"
+  type: "InnerProduct"
+  bottom: "fc2_mouth"
+  top: "fc3_Wearing_Lipstick"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Lipstick"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Lipstick"
+  bottom: "label_Wearing_Lipstick"
+  top: "loss_Wearing_Lipstick"
+}
+
+layer {
+  name: "fc3_Mouth_Slightly_Open"
+  type: "InnerProduct"
+  bottom: "fc2_mouth"
+  top: "fc3_Mouth_Slightly_Open"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Mouth_Slightly_Open"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Mouth_Slightly_Open"
+  bottom: "label_Mouth_Slightly_Open"
+  top: "loss_Mouth_Slightly_Open"
+}
+
+##eyes group##
+layer {
+  name: "fc3_Arched_Eyebrows"
+  type: "InnerProduct"
+  bottom: "fc2_eyes"
+  top: "fc3_Arched_Eyebrows"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Arched_Eyebrows"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Arched_Eyebrows"
+  bottom: "label_Arched_Eyebrows"
+  top: "loss_Arched_Eyebrows"
+}
+
+layer {
+  name: "fc3_Bags_Under_Eyes"
+  type: "InnerProduct"
+  bottom: "fc2_eyes"
+  top: "fc3_Bags_Under_Eyes"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Bags_Under_Eyes"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Bags_Under_Eyes"
+  bottom: "label_Bags_Under_Eyes"
+  top: "loss_Bags_Under_Eyes"
+}
+
+layer {
+  name: "fc3_Bushy_Eyebrows"
+  type: "InnerProduct"
+  bottom: "fc2_eyes"
+  top: "fc3_Bushy_Eyebrows"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Bushy_Eyebrows"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Bushy_Eyebrows"
+  bottom: "label_Bushy_Eyebrows"
+  top: "loss_Bushy_Eyebrows"
+}
+
+layer {
+  name: "fc3_Narrow_Eyes"
+  type: "InnerProduct"
+  bottom: "fc2_eyes"
+  top: "fc3_Narrow_Eyes"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Narrow_Eyes"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Narrow_Eyes"
+  bottom: "label_Narrow_Eyes"
+  top: "loss_Narrow_Eyes"
+}
+
+layer {
+  name: "fc3_Eyeglasses"
+  type: "InnerProduct"
+  bottom: "fc2_eyes"
+  top: "fc3_Eyeglasses"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Eyeglasses"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Eyeglasses"
+  bottom: "label_Eyeglasses"
+  top: "loss_Eyeglasses"
+}
+
+##face group##
+layer {
+  name: "fc3_Attractive"
+  type: "InnerProduct"
+  bottom: "fc2_face"
+  top: "fc3_Attractive"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Attractive"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Attractive"
+  bottom: "label_Attractive"
+  top: "loss_Attractive"
+}
+
+layer {
+  name: "fc3_Blurry"
+  type: "InnerProduct"
+  bottom: "fc2_face"
+  top: "fc3_Blurry"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Blurry"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Blurry"
+  bottom: "label_Blurry"
+  top: "loss_Blurry"
+}
+
+layer {
+  name: "fc3_Oval_Face"
+  type: "InnerProduct"
+  bottom: "fc2_face"
+  top: "fc3_Oval_Face"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Oval_Face"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Oval_Face"
+  bottom: "label_Oval_Face"
+  top: "loss_Oval_Face"
+}
+
+layer {
+  name: "fc3_Pale_Skin"
+  type: "InnerProduct"
+  bottom: "fc2_face"
+  top: "fc3_Pale_Skin"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Pale_Skin"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Pale_Skin"
+  bottom: "label_Pale_Skin"
+  top: "loss_Pale_Skin"
+}
+
+layer {
+  name: "fc3_Young"
+  type: "InnerProduct"
+  bottom: "fc2_face"
+  top: "fc3_Young"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Young"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Young"
+  bottom: "label_Young"
+  top: "loss_Young"
+}
+
+layer {
+  name: "fc3_Heavy_Makeup"
+  type: "InnerProduct"
+  bottom: "fc2_face"
+  top: "fc3_Heavy_Makeup"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Heavy_Makeup"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Heavy_Makeup"
+  bottom: "label_Heavy_Makeup"
+  top: "loss_Heavy_Makeup"
+}
+
+##aroundhead group##
+layer {
+  name: "fc3_Black_Hair"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Black_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Black_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Black_Hair"
+  bottom: "label_Black_Hair"
+  top: "loss_Black_Hair"
+}
+
+layer {
+  name: "fc3_Blond_Hair"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Blond_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Blond_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Blond_Hair"
+  bottom: "label_Blond_Hair"
+  top: "loss_Blond_Hair"
+}
+
+layer {
+  name: "fc3_Brown_Hair"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Brown_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Brown_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Brown_Hair"
+  bottom: "label_Brown_Hair"
+  top: "loss_Brown_Hair"
+}
+
+layer {
+  name: "fc3_Gray_Hair"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Gray_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Gray_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Gray_Hair"
+  bottom: "label_Gray_Hair"
+  top: "loss_Gray_Hair"
+}
+
+layer {
+  name: "fc3_Wearing_Earrings"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Wearing_Earrings"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Earrings"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Earrings"
+  bottom: "label_Wearing_Earrings"
+  top: "loss_Wearing_Earrings"
+}
+
+layer {
+  name: "fc3_Wearing_Necklace"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Wearing_Necklace"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Necklace"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Necklace"
+  bottom: "label_Wearing_Necklace"
+  top: "loss_Wearing_Necklace"
+}
+
+layer {
+  name: "fc3_Wearing_Necktie"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Wearing_Necktie"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Necktie"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Necktie"
+  bottom: "label_Wearing_Necktie"
+  top: "loss_Wearing_Necktie"
+}
+
+layer {
+  name: "fc3_Bald"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Bald"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Bald"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Bald"
+  bottom: "label_Bald"
+  top: "loss_Bald"
+}
+
+layer {
+  name: "fc3_Receding_Hairline"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Receding_Hairline"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Receding_Hairline"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Receding_Hairline"
+  bottom: "label_Receding_Hairline"
+  top: "loss_Receding_Hairline"
+}
+
+layer {
+  name: "fc3_Bangs"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Bangs"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Bangs"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Bangs"
+  bottom: "label_Bangs"
+  top: "loss_Bangs"
+}
+
+layer {
+  name: "fc3_Wearing_Hat"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Wearing_Hat"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Hat"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Hat"
+  bottom: "label_Wearing_Hat"
+  top: "loss_Wearing_Hat"
+  }
+
+layer {
+  name: "fc3_Straight_Hair"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Straight_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Straight_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Straight_Hair"
+  bottom: "label_Straight_Hair"
+  top: "loss_Straight_Hair"
+}
+
+layer {
+  name: "fc3_Wavy_Hair"
+  type: "InnerProduct"
+  bottom: "fc2_aroundhead"
+  top: "fc3_Wavy_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wavy_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wavy_Hair"
+  bottom: "label_Wavy_Hair"
+  top: "loss_Wavy_Hair"
+}
+
+##facialhair group##
+layer {
+  name: "fc3_5_o_Clock_Shadow"
+  type: "InnerProduct"
+  bottom: "fc2_facialhair"
+  top: "fc3_5_o_Clock_Shadow"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_5_o_Clock_Shadow"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_5_o_Clock_Shadow"
+  bottom: "label_5_o_Clock_Shadow"
+  top: "loss_5_o_Clock_Shadow"
+}
+
+layer {
+  name: "fc3_Mustache"
+  type: "InnerProduct"
+  bottom: "fc2_facialhair"
+  top: "fc3_Mustache"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Mustache"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Mustache"
+  bottom: "label_Mustache"
+  top: "loss_Mustache"
+}
+
+layer {
+  name: "fc3_No_Beard"
+  type: "InnerProduct"
+  bottom: "fc2_facialhair"
+  top: "fc3_No_Beard"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_No_Beard"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_No_Beard"
+  bottom: "label_No_Beard"
+  top: "loss_No_Beard"
+}
+
+layer {
+  name: "fc3_Sideburns"
+  type: "InnerProduct"
+  bottom: "fc2_facialhair"
+  top: "fc3_Sideburns"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Sideburns"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Sideburns"
+  bottom: "label_Sideburns"
+  top: "loss_Sideburns"
+}
+
+layer {
+  name: "fc3_Goatee"
+  type: "InnerProduct"
+  bottom: "fc2_facialhair"
+  top: "fc3_Goatee"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Goatee"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Goatee"
+  bottom: "label_Goatee"
+  top: "loss_Goatee"
+}
+
+##cheeks group##
+layer {
+  name: "fc3_High_Cheekbones"
+  type: "InnerProduct"
+  bottom: "fc2_cheeks"
+  top: "fc3_High_Cheekbones"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_High_Cheekbones"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_High_Cheekbones"
+  bottom: "label_High_Cheekbones"
+  top: "loss_High_Cheekbones"
+}
+
+layer {
+  name: "fc3_Rosy_Cheeks"
+  type: "InnerProduct"
+  bottom: "fc2_cheeks"
+  top: "fc3_Rosy_Cheeks"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Rosy_Cheeks"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Rosy_Cheeks"
+  bottom: "label_Rosy_Cheeks"
+  top: "loss_Rosy_Cheeks"
+}
+
+##fat group##
+layer {
+  name: "fc3_Chubby"
+  type: "InnerProduct"
+  bottom: "fc2_fat"
+  top: "fc3_Chubby"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Chubby"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Chubby"
+  bottom: "label_Chubby"
+  top: "loss_Chubby"
+}
+
+layer {
+  name: "fc3_Double_Chin"
+  type: "InnerProduct"
+  bottom: "fc2_fat"
+  top: "fc3_Double_Chin"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Double_Chin"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Double_Chin"
+  bottom: "label_Double_Chin"
+  top: "loss_Double_Chin"
+}
+
+layer {
+  name: "silence"
+  type: "Silence"
+  bottom: "fakelabel"
+}
+
+layer {
+  name: "attr_mid_feat"
+  type: "Concat"
+  bottom: "pool3_gender"
+  bottom: "pool3_mouth"
+  bottom: "pool3_nose"
+  bottom: "pool3_eyes"
+  bottom: "pool3_face"
+  bottom: "pool3_rest"
+  top: "attr_mid_feat"
+  concat_param {
+    concat_dim: 1
+  } 
+}
+
+layer {
+  name: "attr_top_feat"
+  type: "Concat"
+  bottom: "fc2_gender"
+  bottom: "fc2_nose"
+  bottom: "fc2_mouth"
+  bottom: "fc2_eyes"
+  bottom: "fc2_face"
+  bottom: "fc2_aroundhead"
+  bottom: "fc2_facialhair"
+  bottom: "fc2_cheeks"
+  bottom: "fc2_fat"
+  top: "attr_top_feat"
+  concat_param {
+    concat_dim: 1
+  } 
+}
+layer {
+  name: "fc8_top_attr"
+  type: "InnerProduct"
+  bottom: "attr_top_feat"
+  top: "fc8_top_attr"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 2837
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+}
+}
+layer {
+  name: "loss_top_attr"
+  type: "SoftmaxWithLoss"
+  bottom: "fc8_top_attr"
+  bottom: "label"
+  loss_weight: 1
+  top: "loss_top"
+}
+layer{
+  name: "accuracy_top_attr_top1"
+  type: "Accuracy"
+  bottom: "fc8_top_attr"
+  bottom: "label"
+  top: "accuracy_top_attr_top1"
+  include {
+    phase: TEST
+  }
+}
+layer{
+  name: "accuracy_top_attr_top5"
+  type: "Accuracy"
+  bottom: "fc8_top_attr"
+  bottom: "label"
+  top: "accuracy_top_attr_top5"
+  accuracy_param {
+  top_k: 5
+  }
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "fc8_mid_attr"
+  type: "InnerProduct"
+  bottom: "attr_mid_feat"
+  top: "fc8_mid_attr"
+  param {
+    lr_mult: 1
+	decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+	decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 2837
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+}
+}
+layer {
+  name: "loss_mid_attr"
+  type: "SoftmaxWithLoss"
+  bottom: "fc8_mid_attr"
+  bottom: "label"
+  loss_weight: 1
+  top: "loss_mid"
+}
+layer{
+  name: "accuracy_mid_attr_mid1"
+  type: "Accuracy"
+  bottom: "fc8_mid_attr"
+  bottom: "label"
+  top: "accuracy_mid_attr_mid1"
+  include {
+    phase: TEST
+  }
+}
+layer{
+  name: "accuracy_mid_attr_mid5"
+  type: "Accuracy"
+  bottom: "fc8_mid_attr"
+  bottom: "label"
+  top: "accuracy_mid_attr_mid5"
+  accuracy_param {
+  top_k: 5
+  }
+  include {
+    phase: TEST
+  }
+}
+
