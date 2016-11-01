@@ -28,6 +28,6 @@ $name/loss_No_Beard,$name/loss_Oval_Face,$name/loss_Pale_Skin,$name/loss_Pointy_
 $name/loss_Receding_Hairline,$name/loss_Rosy_Cheeks,$name/loss_Sideburns,$name/loss_Smiling,\
 $name/loss_Straight_Hair,$name/loss_Wavy_Hair,$name/loss_Wearing_Earrings,$name/loss_Wearing_Hat,\
 $name/loss_Wearing_Lipstick,$name/loss_Wearing_Necklace,$name/loss_Wearing_Necktie,$name/loss_Young \
-174 lmdb GPU 0
+200 lmdb GPU 0
 echo "$i done"
 done
