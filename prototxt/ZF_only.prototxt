@@ -1,0 +1,1444 @@
+name: "ZF_NET"
+#========= Full Face ============
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data_fu"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mirror: true
+	crop_size: 224    
+         scale: 0.00390625
+	mean_file: "/home/zhangyuan/caojiajiong/attribute_learning/data/train.binaryproto"
+  }
+  image_data_param {
+    source: "/home/zhangyuan/caojiajiong/attribute_learning/list/train_0p_select_shuffle.txt"
+	root_folder: "/home/zhangyuan/caojiajiong/attribute_learning/data/img_align_celeba/"
+	new_height: 256
+	new_width: 256
+	batch_size: 32
+  }
+}
+layer {
+  name: "attr_data"
+  type: "Data"
+  top: "attr_data"
+  top: "fakelabel"
+  include {
+    phase: TRAIN
+  }
+  data_param {
+    source: "/home/zhangyuan/caojiajiong/attribute_learning/data/attr_train_0p_select"
+	batch_size: 32
+    backend: LMDB
+  }
+}
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data_fu"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mirror: false
+	crop_size: 224    
+         scale: 0.00390625
+	mean_file: "/home/zhangyuan/caojiajiong/attribute_learning/data/train.binaryproto"
+  }
+  image_data_param {
+    source: "/home/zhangyuan/caojiajiong/attribute_learning/list/val_0p_select.txt"
+	root_folder: "/home/zhangyuan/caojiajiong/attribute_learning/data/img_align_celeba/"
+	new_height: 256
+	new_width: 256
+	batch_size: 64
+  }
+}
+layer {
+  name: "attr_data"
+  type: "Data"
+  top: "attr_data"
+  top: "fakelabel"
+  include {
+    phase: TEST
+  }
+  data_param {
+    source: "/home/zhangyuan/caojiajiong/attribute_learning/data/attr_val_0p_select"
+	batch_size: 64
+    backend: LMDB
+  }
+}
+
+layer {
+  name: "slice"
+  type: "Slice"
+  bottom: "attr_data"
+  top: "label_5_o_Clock_Shadow"
+  top: "label_Arched_Eyebrows"
+  top: "label_Attractive"
+  top: "label_Bags_Under_Eyes"
+  top: "label_Bald"
+  top: "label_Bangs"
+  top: "label_Big_Lips"
+  top: "label_Big_Nose"
+  top: "label_Black_Hair"
+  top: "label_Blond_Hair"
+  top: "label_Blurry"
+  top: "label_Brown_Hair"
+  top: "label_Bushy_Eyebrows"
+  top: "label_Chubby"
+  top: "label_Double_Chin"
+  top: "label_Eyeglasses"
+  top: "label_Goatee"
+  top: "label_Gray_Hair"
+  top: "label_Heavy_Makeup"
+  top: "label_High_Cheekbones"
+  top: "label_Male"
+  top: "label_Mouth_Slightly_Open"
+  top: "label_Mustache"
+  top: "label_Narrow_Eyes"
+  top: "label_No_Beard"
+  top: "label_Oval_Face"
+  top: "label_Pale_Skin"
+  top: "label_Pointy_Nose"
+  top: "label_Receding_Hairline"
+  top: "label_Rosy_Cheeks"
+  top: "label_Sideburns"
+  top: "label_Smiling"
+  top: "label_Straight_Hair"
+  top: "label_Wavy_Hair"
+  top: "label_Wearing_Earrings"
+  top: "label_Wearing_Hat"
+  top: "label_Wearing_Lipstick"
+  top: "label_Wearing_Necklace"
+  top: "label_Wearing_Necktie"
+  top: "label_Young"
+  slice_param {
+    slice_dim: 1
+    slice_point: 2
+    slice_point: 4
+    slice_point: 6
+    slice_point: 8
+    slice_point: 10
+    slice_point: 12
+    slice_point: 14
+    slice_point: 16
+    slice_point: 18
+    slice_point: 20
+    slice_point: 22
+    slice_point: 24
+    slice_point: 26
+    slice_point: 28
+    slice_point: 30
+    slice_point: 32
+    slice_point: 34
+    slice_point: 36
+    slice_point: 38
+    slice_point: 40
+    slice_point: 42
+    slice_point: 44
+    slice_point: 46
+    slice_point: 48
+    slice_point: 50
+    slice_point: 52
+    slice_point: 54
+    slice_point: 56
+    slice_point: 58
+    slice_point: 60
+    slice_point: 62
+    slice_point: 64
+    slice_point: 66
+    slice_point: 68
+    slice_point: 70
+    slice_point: 72
+    slice_point: 74
+    slice_point: 76
+    slice_point: 78
+  } 
+}
+#========= Full Face conv1-conv5 ============
+
+layer {
+	name: "conv1"
+	type: "Convolution"
+	bottom: "data_fu"
+	top: "conv1_fu"
+	param { name: "conv1_w" lr_mult: 1.0 }
+	param { name: "conv1_b" lr_mult: 2.0 }
+	convolution_param {
+		num_output: 96
+		kernel_size: 7
+		pad: 3
+		stride: 2
+		weight_filler {
+      type: "msra"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+	}
+}
+layer {
+	name: "relu1"
+	type: "ReLU"
+	bottom: "conv1_fu"
+	top: "conv1_fu"
+}
+layer {
+	name: "norm1"
+	type: "LRN"
+	bottom: "conv1_fu"
+	top: "norm1_fu"
+	lrn_param {
+		local_size: 3
+		alpha: 0.00005
+		beta: 0.75
+		norm_region: WITHIN_CHANNEL
+    engine: CAFFE
+	}
+}
+layer {
+	name: "pool1"
+	type: "Pooling"
+	bottom: "norm1_fu"
+	top: "pool1_fu"
+	pooling_param {
+		kernel_size: 3
+		stride: 2
+		pad: 1
+		pool: MAX
+	}
+}
+layer {
+	name: "conv2"
+	type: "Convolution"
+	bottom: "pool1_fu"
+	top: "conv2_fu"
+	param { name: "conv2_w" lr_mult: 1.0 }
+	param { name: "conv2_b" lr_mult: 2.0 }
+	convolution_param {
+		num_output: 256
+		kernel_size: 5
+		pad: 2
+		stride: 2
+		weight_filler {
+      type: "msra"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+	}
+}
+layer {
+	name: "relu2"
+	type: "ReLU"
+	bottom: "conv2_fu"
+	top: "conv2_fu"
+}
+layer {
+	name: "norm2"
+	type: "LRN"
+	bottom: "conv2_fu"
+	top: "norm2_fu"
+	lrn_param {
+		local_size: 3
+		alpha: 0.00005
+		beta: 0.75
+		norm_region: WITHIN_CHANNEL
+    engine: CAFFE
+	}
+}
+layer {
+	name: "pool2"
+	type: "Pooling"
+	bottom: "norm2_fu"
+	top: "pool2_fu"
+	pooling_param {
+		kernel_size: 3
+		stride: 2
+		pad: 1
+		pool: MAX
+	}
+}
+layer {
+	name: "conv3"
+	type: "Convolution"
+	bottom: "pool2_fu"
+	top: "conv3_fu"
+	param { name: "conv3_w" lr_mult: 1.0 }
+	param { name: "conv3_b" lr_mult: 2.0 }
+	convolution_param {
+		num_output: 384
+		kernel_size: 3
+		pad: 1
+		stride: 1
+		weight_filler {
+      type: "msra"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+	}
+}
+layer {
+	name: "relu3"
+	type: "ReLU"
+	bottom: "conv3_fu"
+	top: "conv3_fu"
+}
+layer {
+	name: "conv4"
+	type: "Convolution"
+	bottom: "conv3_fu"
+	top: "conv4_fu"
+	param { name: "conv4_w" lr_mult: 1.0 }
+	param { name: "conv4_b" lr_mult: 2.0 }
+	convolution_param {
+		num_output: 384
+		kernel_size: 3
+		pad: 1
+		stride: 1
+		weight_filler {
+      type: "msra"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+	}
+}
+layer {
+	name: "relu4"
+	type: "ReLU"
+	bottom: "conv4_fu"
+	top: "conv4_fu"
+}
+layer {
+	name: "conv5"
+	type: "Convolution"
+	bottom: "conv4_fu"
+	top: "conv5_fu"
+	param { name: "conv5_w" lr_mult: 1.0 }
+	param { name: "conv5_b" lr_mult: 2.0 }
+	convolution_param {
+		num_output: 256
+		kernel_size: 3
+		pad: 1
+		stride: 1
+		weight_filler {
+      type: "msra"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+	}
+}
+layer {
+	name: "relu5"
+	type: "ReLU"
+	bottom: "conv5_fu"
+	top: "conv5_fu"
+}
+
+layer {
+  bottom: "conv5_fu"
+  top: "pool5_fu"
+  name: "pool5"
+  type: "Pooling"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  bottom: "pool5_fu"
+  top: "fc6_fu"
+  name: "fc6_fu"
+  type: "InnerProduct"
+  param { name: "fc6_w" lr_mult: 1.0 }
+	param { name: "fc6_b" lr_mult: 2.0 }
+  inner_product_param {
+    num_output: 512
+	weight_filler {
+      type: "msra"
+      std: 0.01
+    }
+  }
+}
+layer {
+  bottom: "fc6_fu"
+  top: "fc6_fu"
+  name: "relu6_fu"
+  type: "ReLU"
+}
+layer {
+  bottom: "fc6_fu"
+  top: "fc6_fu"
+  name: "drop6_fu"
+  type: "Dropout"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layer {
+  bottom: "fc6_fu"
+  top: "fc7_fu"
+  name: "fc7_fu"
+  type: "InnerProduct"
+  param { name: "fc7_w" lr_mult: 1.0 }
+	param { name: "fc7_b" lr_mult: 2.0 }
+  inner_product_param {
+    num_output: 512
+	weight_filler {
+      type: "msra"
+      std: 0.01
+    }
+  }
+}
+layer {
+  bottom: "fc7_fu"
+  top: "fc7_fu"
+  name: "relu7_fu"
+  type: "ReLU"
+}
+layer {
+  bottom: "fc7_fu"
+  top: "fc7_fu"
+  name: "drop7_fu"
+  type: "Dropout"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+##gender group##
+layer {
+  name: "fc3_Male"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Male"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Male"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Male"
+  bottom: "label_Male"
+  top: "loss_Male"
+}
+
+##nose group##
+layer {
+  name: "fc3_Big_Nose"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Big_Nose"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Big_Nose"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Big_Nose"
+  bottom: "label_Big_Nose"
+  top: "loss_Big_Nose"
+}
+
+layer {
+  name: "fc3_Pointy_Nose"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Pointy_Nose"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Pointy_Nose"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Pointy_Nose"
+  bottom: "label_Pointy_Nose"
+  top: "loss_Pointy_Nose"
+}
+
+##mouth group##
+layer {
+  name: "fc3_Big_Lips"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Big_Lips"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Big_Lips"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Big_Lips"
+  bottom: "label_Big_Lips"
+  top: "loss_Big_Lips"
+}
+
+layer {
+  name: "fc3_Smiling"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Smiling"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Smiling"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Smiling"
+  bottom: "label_Smiling"
+  top: "loss_Smiling"
+}
+
+
+layer {
+  name: "fc3_Wearing_Lipstick"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Wearing_Lipstick"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Lipstick"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Lipstick"
+  bottom: "label_Wearing_Lipstick"
+  top: "loss_Wearing_Lipstick"
+}
+
+layer {
+  name: "fc3_Mouth_Slightly_Open"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Mouth_Slightly_Open"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Mouth_Slightly_Open"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Mouth_Slightly_Open"
+  bottom: "label_Mouth_Slightly_Open"
+  top: "loss_Mouth_Slightly_Open"
+}
+
+##eyes group##
+layer {
+  name: "fc3_Arched_Eyebrows"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Arched_Eyebrows"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Arched_Eyebrows"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Arched_Eyebrows"
+  bottom: "label_Arched_Eyebrows"
+  top: "loss_Arched_Eyebrows"
+}
+
+layer {
+  name: "fc3_Bags_Under_Eyes"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Bags_Under_Eyes"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Bags_Under_Eyes"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Bags_Under_Eyes"
+  bottom: "label_Bags_Under_Eyes"
+  top: "loss_Bags_Under_Eyes"
+}
+
+layer {
+  name: "fc3_Bushy_Eyebrows"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Bushy_Eyebrows"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Bushy_Eyebrows"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Bushy_Eyebrows"
+  bottom: "label_Bushy_Eyebrows"
+  top: "loss_Bushy_Eyebrows"
+}
+
+layer {
+  name: "fc3_Narrow_Eyes"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Narrow_Eyes"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Narrow_Eyes"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Narrow_Eyes"
+  bottom: "label_Narrow_Eyes"
+  top: "loss_Narrow_Eyes"
+}
+
+layer {
+  name: "fc3_Eyeglasses"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Eyeglasses"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Eyeglasses"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Eyeglasses"
+  bottom: "label_Eyeglasses"
+  top: "loss_Eyeglasses"
+}
+
+##face group##
+layer {
+  name: "fc3_Attractive"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Attractive"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Attractive"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Attractive"
+  bottom: "label_Attractive"
+  top: "loss_Attractive"
+}
+
+layer {
+  name: "fc3_Blurry"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Blurry"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Blurry"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Blurry"
+  bottom: "label_Blurry"
+  top: "loss_Blurry"
+}
+
+layer {
+  name: "fc3_Oval_Face"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Oval_Face"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Oval_Face"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Oval_Face"
+  bottom: "label_Oval_Face"
+  top: "loss_Oval_Face"
+}
+
+layer {
+  name: "fc3_Pale_Skin"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Pale_Skin"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Pale_Skin"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Pale_Skin"
+  bottom: "label_Pale_Skin"
+  top: "loss_Pale_Skin"
+}
+
+layer {
+  name: "fc3_Young"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Young"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Young"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Young"
+  bottom: "label_Young"
+  top: "loss_Young"
+}
+
+layer {
+  name: "fc3_Heavy_Makeup"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Heavy_Makeup"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Heavy_Makeup"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Heavy_Makeup"
+  bottom: "label_Heavy_Makeup"
+  top: "loss_Heavy_Makeup"
+}
+
+##aroundhead group##
+layer {
+  name: "fc3_Black_Hair"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Black_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Black_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Black_Hair"
+  bottom: "label_Black_Hair"
+  top: "loss_Black_Hair"
+}
+
+layer {
+  name: "fc3_Blond_Hair"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Blond_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Blond_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Blond_Hair"
+  bottom: "label_Blond_Hair"
+  top: "loss_Blond_Hair"
+}
+
+layer {
+  name: "fc3_Brown_Hair"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Brown_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Brown_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Brown_Hair"
+  bottom: "label_Brown_Hair"
+  top: "loss_Brown_Hair"
+}
+
+layer {
+  name: "fc3_Gray_Hair"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Gray_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Gray_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Gray_Hair"
+  bottom: "label_Gray_Hair"
+  top: "loss_Gray_Hair"
+}
+
+layer {
+  name: "fc3_Wearing_Earrings"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Wearing_Earrings"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Earrings"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Earrings"
+  bottom: "label_Wearing_Earrings"
+  top: "loss_Wearing_Earrings"
+}
+
+layer {
+  name: "fc3_Wearing_Necklace"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Wearing_Necklace"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Necklace"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Necklace"
+  bottom: "label_Wearing_Necklace"
+  top: "loss_Wearing_Necklace"
+}
+
+layer {
+  name: "fc3_Wearing_Necktie"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Wearing_Necktie"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Necktie"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Necktie"
+  bottom: "label_Wearing_Necktie"
+  top: "loss_Wearing_Necktie"
+}
+
+layer {
+  name: "fc3_Bald"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Bald"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Bald"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Bald"
+  bottom: "label_Bald"
+  top: "loss_Bald"
+}
+
+layer {
+  name: "fc3_Receding_Hairline"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Receding_Hairline"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Receding_Hairline"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Receding_Hairline"
+  bottom: "label_Receding_Hairline"
+  top: "loss_Receding_Hairline"
+}
+
+layer {
+  name: "fc3_Bangs"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Bangs"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Bangs"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Bangs"
+  bottom: "label_Bangs"
+  top: "loss_Bangs"
+}
+
+layer {
+  name: "fc3_Wearing_Hat"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Wearing_Hat"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wearing_Hat"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wearing_Hat"
+  bottom: "label_Wearing_Hat"
+  top: "loss_Wearing_Hat"
+  }
+
+layer {
+  name: "fc3_Straight_Hair"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Straight_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Straight_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Straight_Hair"
+  bottom: "label_Straight_Hair"
+  top: "loss_Straight_Hair"
+}
+
+layer {
+  name: "fc3_Wavy_Hair"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Wavy_Hair"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Wavy_Hair"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Wavy_Hair"
+  bottom: "label_Wavy_Hair"
+  top: "loss_Wavy_Hair"
+}
+
+##facialhair group##
+layer {
+  name: "fc3_5_o_Clock_Shadow"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_5_o_Clock_Shadow"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_5_o_Clock_Shadow"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_5_o_Clock_Shadow"
+  bottom: "label_5_o_Clock_Shadow"
+  top: "loss_5_o_Clock_Shadow"
+}
+
+layer {
+  name: "fc3_Mustache"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Mustache"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Mustache"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Mustache"
+  bottom: "label_Mustache"
+  top: "loss_Mustache"
+}
+
+layer {
+  name: "fc3_No_Beard"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_No_Beard"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_No_Beard"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_No_Beard"
+  bottom: "label_No_Beard"
+  top: "loss_No_Beard"
+}
+
+layer {
+  name: "fc3_Sideburns"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Sideburns"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Sideburns"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Sideburns"
+  bottom: "label_Sideburns"
+  top: "loss_Sideburns"
+}
+
+layer {
+  name: "fc3_Goatee"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Goatee"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Goatee"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Goatee"
+  bottom: "label_Goatee"
+  top: "loss_Goatee"
+}
+
+##cheeks group##
+layer {
+  name: "fc3_High_Cheekbones"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_High_Cheekbones"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_High_Cheekbones"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_High_Cheekbones"
+  bottom: "label_High_Cheekbones"
+  top: "loss_High_Cheekbones"
+}
+
+layer {
+  name: "fc3_Rosy_Cheeks"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Rosy_Cheeks"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Rosy_Cheeks"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Rosy_Cheeks"
+  bottom: "label_Rosy_Cheeks"
+  top: "loss_Rosy_Cheeks"
+}
+
+##fat group##
+layer {
+  name: "fc3_Chubby"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Chubby"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Chubby"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Chubby"
+  bottom: "label_Chubby"
+  top: "loss_Chubby"
+}
+
+layer {
+  name: "fc3_Double_Chin"
+  type: "InnerProduct"
+  bottom: "fc7_fu"
+  top: "fc3_Double_Chin"
+  inner_product_param {
+    num_output: 2
+	weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "loss_Double_Chin"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "fc3_Double_Chin"
+  bottom: "label_Double_Chin"
+  top: "loss_Double_Chin"
+}
+
+layer {
+  name: "silence"
+  type: "Silence"
+  bottom: "fakelabel"
+  bottom: "label"
+}
