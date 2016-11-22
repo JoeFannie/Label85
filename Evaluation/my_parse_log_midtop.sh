@@ -69,18 +69,20 @@ grep 'Test net output #38: loss_Wearing_Lipstick = ' $1 | awk '{print $11}' > au
 grep 'Test net output #39: loss_Wearing_Necklace = ' $1 | awk '{print $11}' > aux42.txt
 grep 'Test net output #40: loss_Wearing_Necktie = ' $1 | awk '{print $11}' > aux43.txt
 grep 'Test net output #41: loss_Young = ' $1 | awk '{print $11}' > aux44.txt
+grep 'Test net output #42: loss_mid = ' $1 | awk '{print $11}' > aux45.txt
+grep 'Test net output #42: loss_top = ' $1 | awk '{print $11}' > aux46.txt
 
 # Generating
 paste aux0.txt aux4.txt aux1.txt aux2.txt aux5.txt aux6.txt aux7.txt aux8.txt aux9.txt aux10.txt \
 aux11.txt aux12.txt aux13.txt aux14.txt aux15.txt aux16.txt aux17.txt aux18.txt aux19.txt aux20.txt \
 aux21.txt aux22.txt aux23.txt aux24.txt aux25.txt aux26.txt aux27.txt aux28.txt aux29.txt aux30.txt \
 aux31.txt aux32.txt aux33.txt aux34.txt aux35.txt aux36.txt aux37.txt aux38.txt aux39.txt aux40.txt \
-aux41.txt aux42.txt aux43.txt aux44.txt | column -t >> $LOG.test
+aux41.txt aux42.txt aux43.txt aux44.txt aux45.txt aux46.txt | column -t >> $LOG.test
 rm aux.txt aux0.txt aux4.txt aux1.txt aux2.txt aux5.txt aux6.txt aux7.txt aux8.txt aux9.txt aux10.txt \
 aux11.txt aux12.txt aux13.txt aux14.txt aux15.txt aux16.txt aux17.txt aux18.txt aux19.txt aux20.txt \
 aux21.txt aux22.txt aux23.txt aux24.txt aux25.txt aux26.txt aux27.txt aux28.txt aux29.txt aux30.txt \
 aux31.txt aux32.txt aux33.txt aux34.txt aux35.txt aux36.txt aux37.txt aux38.txt aux39.txt aux40.txt \
-aux41.txt aux42.txt aux43.txt aux44.txt 
+aux41.txt aux42.txt aux43.txt aux44.txt aux45.txt aux46.txt 
 
 # For extraction of time since this line contains the start time
 grep '] Solving ' $1 > aux.txt
@@ -128,6 +130,8 @@ grep 'Train net output #36: loss_Wearing_Lipstick = ' $1 | awk '{print $11}' > a
 grep 'Train net output #37: loss_Wearing_Necklace = ' $1 | awk '{print $11}' > aux42.txt
 grep 'Train net output #38: loss_Wearing_Necktie = ' $1 | awk '{print $11}' > aux43.txt
 grep 'Train net output #39: loss_Young = ' $1 | awk '{print $11}' > aux44.txt
+grep 'Train net output #40: loss_mid = ' $1 | awk '{print $11}' > aux45.txt
+grep 'Train net output #40: loss_top = ' $1 | awk '{print $11}' > aux46.txt
 
 
 
@@ -140,9 +144,9 @@ paste aux0.txt aux3.txt aux1.txt aux2.txt aux5.txt aux6.txt aux7.txt aux8.txt au
 aux11.txt aux12.txt aux13.txt aux14.txt aux15.txt aux16.txt aux17.txt aux18.txt aux19.txt aux20.txt \
 aux21.txt aux22.txt aux23.txt aux24.txt aux25.txt aux26.txt aux27.txt aux28.txt aux29.txt aux30.txt \
 aux31.txt aux32.txt aux33.txt aux34.txt aux35.txt aux36.txt aux37.txt aux38.txt aux39.txt aux40.txt \
-aux41.txt aux42.txt aux43.txt aux44.txt | column -t >> $LOG.train
+aux41.txt aux42.txt aux43.txt aux44.txt aux45.txt aux46.txt | column -t >> $LOG.train
 rm aux.txt aux0.txt aux3.txt aux1.txt aux2.txt aux5.txt aux6.txt aux7.txt aux8.txt aux9.txt aux10.txt \
 aux11.txt aux12.txt aux13.txt aux14.txt aux15.txt aux16.txt aux17.txt aux18.txt aux19.txt aux20.txt \
 aux21.txt aux22.txt aux23.txt aux24.txt aux25.txt aux26.txt aux27.txt aux28.txt aux29.txt aux30.txt \
 aux31.txt aux32.txt aux33.txt aux34.txt aux35.txt aux36.txt aux37.txt aux38.txt aux39.txt aux40.txt \
-aux41.txt aux42.txt aux43.txt aux44.txt 
+aux41.txt aux42.txt aux43.txt aux44.txt aux45.txt aux46.txt 
