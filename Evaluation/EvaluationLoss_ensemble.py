@@ -28,19 +28,19 @@ loss_list = ['loss_5_o_Clock_Shadow', 'loss_Arched_Eyebrows', 'loss_Attractive',
 'loss_Straight_Hair', 'loss_Wavy_Hair', 'loss_Wearing_Earrings', 'loss_Wearing_Hat', \
 'loss_Wearing_Lipstick', 'loss_Wearing_Necklace', 'loss_Wearing_Necktie', 'loss_Young']
 
-file = open('accuracy_ensemble_4_96_120.txt', 'a')
-for i in range(0, 10):
+file = open('accuracy_ensemble_9_96_128.txt', 'a')
+for i in range(0, 4):
 	loss_count = 0;
 	accuracy = np.zeros((41))
 	if i >= 1:
 		file.writelines('\n')
-	file.writelines(str(i*10000+10000)+'\n')
+	file.writelines(str(i*10000+60000)+'\n')
 	for loss in loss_list:
 	    # ensemble number
-		N = 4
+		N = 9
 		data = np.zeros((20000, 2))
-		for n in range(0, N)
-			dir_name = '/home/zhangyuan/caojiajiong/attribute_learning/features_all/widder_v1_wh' + str(96 + n*8) + '_' + str(i*10000+10000) + '/'
+		for n in range(0, N):
+			dir_name = '/home/zhangyuan/caojiajiong/attribute_learning/features_all/widder_v1_wh' + str(96 + n*4) + '_' + str(i*10000+60000) + '/'
 			loss_name = dir_name + loss
 			#save_name = dir_name + loss + '.txt'
 			feature = lmdb.open(loss_name)
@@ -53,14 +53,14 @@ for i in range(0, 10):
 			  datum.ParseFromString(value)
 			  data[count, :] = data[count, :] + caffe.io.datum_to_array(datum).reshape(2)
 			  count = count + 1
-		data[0:-1, :] = data[0:-1, :] > 0.5 * 4
+		data[0:-1, :] = data[0:-1, :] > 0.5 * N
 		data = data.astype(float)
 		bool_matrix = data[0:19962, 0] == data_label[0:19962, loss_count*2]
 		bool_matrix = bool_matrix.astype(float)
 		accuracy[loss_count] = bool_matrix.sum() / 19962.0
 		loss_count = loss_count + 1
 		print loss
-		np.savetxt(save_name, data, delimiter = ' ')
+		#np.savetxt(save_name, data, delimiter = ' ')
 	accuracy[-1] = accuracy.sum()/40
 	for j in range(0, 41):
 		file.writelines(str(accuracy[j])+'\n')
