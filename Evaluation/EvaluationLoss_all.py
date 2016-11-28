@@ -1,4 +1,4 @@
-caffe_root = '/home/zhangyuan/caojiajiong/caffe-HIK-crop/'
+caffe_root = '/home/zhangyuan/caojiajiong/caffe-HIK/'
 import sys
 sys.path.insert(0, caffe_root+'python')
 import caffe
@@ -28,36 +28,30 @@ loss_list = ['loss_5_o_Clock_Shadow', 'loss_Arched_Eyebrows', 'loss_Attractive',
 'loss_Straight_Hair', 'loss_Wavy_Hair', 'loss_Wearing_Earrings', 'loss_Wearing_Hat', \
 'loss_Wearing_Lipstick', 'loss_Wearing_Necklace', 'loss_Wearing_Necktie', 'loss_Young']
 
-file = open('accuracy_ensemble_branch_conv5_fusion_wh124_7W.txt', 'a')
-feat_file = open('feat_branch_conv5_fusion_wh124_7W.txt', 'w')
-for i in range(0, 1):
+file = open('MCNN_65p.txt', 'a')
+for i in range(0, 6):
+	print i
 	loss_count = 0;
 	accuracy = np.zeros((41))
 	if i >= 1:
 		file.writelines('\n')
-	file.writelines(str(i*10000+60000)+'\n')
+	file.writelines(str(i*10000+50000)+'\n')
 	for loss in loss_list:
-	    # ensemble number
-		feat_file.writelines(loss+'\n')
-		N = 10
+		dir_name = '/home/zhangyuan/caojiajiong/attribute_learning/features_all/MCNN_65p_' + str(i*10000+30000) + '/'
+		loss_name = dir_name + loss
+		#save_name = dir_name + loss + '.txt'
+		feature = lmdb.open(loss_name)
+		feature_txn = feature.begin()
+		feature_cursor = feature_txn.cursor()
+		datum = caffe.proto.caffe_pb2.Datum()
 		data = np.zeros((20000, 2))
-		for n in range(0, N):
-			dir_name = '/home/zhangyuan/caojiajiong/attribute_learning/features_all/branch_conv5_fusion_wh124_7W_' + str(1 + n*1) + '/'
-			loss_name = dir_name + loss
-			#save_name = dir_name + loss + '.txt'
-			feature = lmdb.open(loss_name)
-			feature_txn = feature.begin()
-			feature_cursor = feature_txn.cursor()
-			datum = caffe.proto.caffe_pb2.Datum()
-			count = 0
+		count = 0
 
-			for key, value in feature_cursor:
-			  datum.ParseFromString(value)
-			  data[count, :] = data[count, :] + caffe.io.datum_to_array(datum).reshape(2)
-			  count = count + 1
-		for k in range(0, 19963):
-			feat_file.writelines(str(data[k, 0]) + ' ' + str(data[k, 1]) + '\n')
-		data[0:-1, :] = data[0:-1, :] > 0.5 * N
+		for key, value in feature_cursor:
+		  datum.ParseFromString(value)
+		  data[count, :] = caffe.io.datum_to_array(datum).reshape(2)
+		  count = count + 1
+		data[0:-1, :] = data[0:-1, :] > 0.5
 		data = data.astype(float)
 		bool_matrix = data[0:19962, 0] == data_label[0:19962, loss_count*2]
 		bool_matrix = bool_matrix.astype(float)
@@ -69,7 +63,6 @@ for i in range(0, 1):
 	for j in range(0, 41):
 		file.writelines(str(accuracy[j])+'\n')
 file.close()
-feat_file.close()
 	#accuracy_name = dir_name + 'accuracy.txt'
 	#np.savetxt(accuracy_name, accuracy, delimiter = ' ')
 	
