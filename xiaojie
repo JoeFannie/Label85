@@ -1,0 +1,108 @@
+2016/7/18
+在处理vgg face数据集时，matlab报错：
+Caught "std::exception" Exception message is: Message Catalog MATLAB:builtins was not loaded from the file.
+
+原因：
+在打开一些txt文件之后没有及时关闭，导致fid用尽。所以只要及时关闭这些fid即可
+
+在训练B-CNN时，B-CNN会缓存seed来节约载入labels的时间。因此，修改labels之后需要删除seed，以重新加载。
+
+训练B-CNN时内存占用过高导致死机，内存8G，仍未解决。
+原因：
+载入模型的时候占用内存过多，要在服务器上跑程序
+
+2016/7/19
+Jitter in CNN: 即在CNN中加入数据抖动，比如上下文的干扰，像素平移，加噪声等。这样做的目的是为了更好地拟合真实数据。
+Sort in matlab: sort(A,1)即沿着第一维进行排序。例如A为2X10的矩阵，那么沿着第一维排序即对10个2维列向量排序。
+
+2016/7/20
+B-CNN在实验室16G电脑上跑，仍然内存不够用。
+最后在实验室服务器上总算跑成功了。
+
+2016/7/21
+B-CNN在cub数据集上跑出了结果，耗时较长，大约20h。结果如下：
+利用vgg-m初始化，cub数据训练，val_top1_error在0.33，val_top5_error在0.12（此时已经过拟合，继续训练已经无法降低val_error）；论文中为0.41
+利用[m,m]的bcnn进行finetune之后，val_top1_error在0.228（下降0.1），val_top5_error在0.0.0627（下降0.06），效果明显。论文中为0.22.
+从上面的结果可以看出，bcnn的确可以提高细分类的准确率
+ 
+2016/7/13
+L1范数和L2范数：
+L1范数：向量每个元素的绝对值之和；可用于限制参数的稀疏性；
+L2范数：向量的模，矩阵的奇异值最大值（奇异值表示了样本在奇异向量方向的偏向，限制偏向的大小可以防止模型产生过大的偏向而防止过拟合）；在防止过拟合上表现很好；
+
+向量求导法则温故：
+∂y/∂x= ■(〖∂y〗_1/〖∂x〗_1 &〖∂y〗_1/〖∂x〗_2 &…         〖∂y〗_1/〖∂x〗_m @⋮&… &⋮@〖∂y〗_n/〖∂x〗_1 &〖∂y〗_n/〖∂x〗_2 &…         〖∂y〗_n/〖∂x〗_m ) 
+其中x为m维列向量，y为n维列向量。求导时，y按列展开，x则按行展开。最后的结果是一个n X m的矩阵。以此类推可以得到其他的求导法则。
+dy/dX= ■(dy/〖dX〗_11 &⋯&dy/〖dX〗_1n @⋮&…&⋮@dy/〖dX〗_m1 &…&dy/〖dX〗_mn )
+dY/dx= ■(〖dY〗_11/dx&⋯&〖dY〗_m1/dx@⋮&⋯&⋮@〖dY〗_1n/dx&⋯&〖dY〗_mn/dx)
+矩阵对标量求导时，矩阵先转置再追个元素求导。标量对矩阵求导时，直接逐个元素求导。矩阵求导规则各异，在保证结果正确的情况下，不同的规则可能会得到不同维度。看论文时注意。
+ 
+2016/7/26
+Matlab从一个txt文件fgets之后得到line，再用fprintf写入到新的文件中会出现串行错误，建议不要使用这种方法。
+网上下载到FaceScrub数据集之后，没有区分actors与actresses，因此需要自己进行图片的检索。直接利用名字检索，比如在根目录下寻找Name_imagid_faceid.jpg会由于图片名字的特殊性（有些非英文字母）而漏掉一些人，所以可以直接使用id检索（如imageid或者faceid）。
+
+在B-CNN脚本下，需要check所有image是否存在且可读。在以后产生imageList的时候需要注意这一点。
+
+2016/7/29
+在vgg-m基础上训练bcnn时，使用的是conv5的512维特征，位于第14层。但是在新版的vgg-matconvnet-m中，这个特征在12层。第14层是4096维特征，使用这一层的特征会导致内存溢出。
+生成bbox标签时，注意尺寸和大于零约束。
+Vgg有些8bit的彩色图像，在用imread读入之后会成为4-D数组，导致生成batch时维度不对
+ 
+2016/8/1
+从普通网络改为bcnn的经验：
+	利用finetune原理在原来的模型上直接进行finetune，并将bilinear之前的层的学习率设为0。这里要注意，bilinear之后的层不能与原来的模型具有相同的名字，否则caffe会从原始模型中读取具有该名字的层的参数，并将其赋值给新的需要更新的层。
+	在编译bcnn时，除了添加必要的cpp，cu和h文件之外，还需要修改Makefile中的LIBRARIES，添加cufft。具体的过程见：
+https://github.com/gy20073/compact_bilinear_pooling/tree/master/caffe-20160312
+	在finetune时，如果caffemodel与prototext定义的结构不同，可能会出现“segmentation fault”的错误。
+	在compact_bilinear之后要加sqrt和l2_normalization层
+ 
+2016/8/23
+在公司机器上无法用pip install命令安装lmdb。这是因为外网被墙，可以使用海康的镜像进行安装。命令如下：
+pip install lmdb -i http://mirrors.hikvision.com.cn/python-pypi/simple
+
+在运行python文件时，报错：Non-ASCII character '\xc2'
+解决方案，在文件开头加上： 以明确编码的方式
+# -*- coding: utf-8 -*-
+
+2016/8/25
+遇到/bin/sh^M: bad interpreter:错误，是dos和linux末尾不同导致的可有以下解决方案：
+	dos2unix filename
+	sed –i ‘s/\r//’
+
+Parametric method and non-parametric method
+Parametric method 假设分布是正态分布，并且可以应用统计上的中心极限定理。
+non-parametric method 则不对分布做任何假设，因此更加符合实际情况。CNN属于non-parametric method
+
+改变超参数weight_decay: 0.0005 即原来的10倍，在训练137500iters后，达到0.973058的准确率。模型：Full_face_2c_1_iter_137500_0.973058.caffemodel
+
+ 
+2016/8/29
+调整超参数时发现，当lr下降10倍时，测试集上的准确率会有突跃。
+当其他参数不变，weight_decay变成0.0005，即原来的10倍时，在22500轮的31%突变到25000轮的91%；
+当其他参数不变，momentum变成0.85，在52500轮的81%突变到25000轮的93%；
+可以看出在此情况下，momentum的增加加速了收敛。
+按照张渊的经验，学习率在0.01或者0.001的时候，在TYCX数据集上的测试准确率达到最大，大约70%+。此时的val集的准确率为96.7%（banch_size=110）或者97%（banch_size=220）左右。
+
+2016/8/30
+在base情况下，第5000轮即可达到70%+准确率，十分快速。
+把weight_decay变成10倍后，5000轮仅达到60%-准确率，可见在加正则化的时候，收敛较慢。
+
+2016/8/31
+base训练达到10W轮，准确率未到94%，而weight_decay则是达到了95%，实现了更快收敛。
+
+2016/9/1
+Weight_decay在21W时在TYCX上达到70%，而在18.5W上准确率略低一些。
+
+2016/9/2
+Base在19W左右的准确率仅在54%上下，可见还没有收敛。另一方面，weight_decay的lr在27W时已经达到了1e-5，可见已经达到了收敛。
+Attribute_learning，在single模式下，18,21,27,36,38的loss一直为87且不变。
+ 
+2016/9/6
+做属性分类时，training from scratch效果不好。对于某些属性虽然会有所提升，但是一部分属性的分类accuracy一直保持在初始化准确率附近。因此，在良好的初始化模型下进行训练是必要的。
+
+2016/9/7
+2016 CVPR文章：
+“Person Re-Identification by Multi-Channel Parts-Based CNN with Improved Triplet Loss Function”
+	Full body 在经过一次卷积之后，均分成四个parts，作为4个新特征；
+	提升Triplet Loss，在原来d+ - d- < margin1的条件下，加入d+ < margin2的新约束，以此提升性能。
+
